@@ -7,5 +7,5 @@ npm install
 
 Levantar el servidor de node
 ```
-nodemon dist/
+nodemon index.js
 ```
