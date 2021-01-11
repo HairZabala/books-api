@@ -5,7 +5,9 @@ const http = require('http');
 const socketIO = require('socket.io');
 
 const { dbConnection } = require('./database/config');
-const { disconnect, mensaje } = require('./sockets/socket');
+
+// Configuracion de todas las acciones del socket en el servidor.
+const socket = require('./sockets/socket');
 
 // Crear el servidor de express
 const app = express();
@@ -17,16 +19,22 @@ app.use(express.json());
 app.use(require('./routes/config.routes'));
 
 const httpServer = http.createServer(app);
-const io = socketIO(httpServer, { cors: { origin: true, credentials: true } });
+global.io = socketIO(httpServer, { cors: { origin: true, credentials: true } });
 
 // configuracion del socket.
 io.on('connection', (client) => {
-    console.log('user connected');
+
+    // Conectar usuario
+    socket.conectarUsuario(client);
+
+    // Configurar usuario
+    // console.log('user connected', client.id);
+    socket.configurarUsuario(client, io);
 
     // Escuchar mensajes;
-    mensaje(client, io);
+    socket.mensaje(client, io);
 
-    disconnect(client);
+    socket.disconnect(client);
 
 });
 
