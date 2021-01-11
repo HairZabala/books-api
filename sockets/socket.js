@@ -10,10 +10,11 @@ const conectarUsuario = (client) => {
 
 }
 
-const disconnect = (client) => {
+const disconnect = (client, io) => {
 
     client.on('disconnect', () => {
         const usuarioBorrado = usuariosConectados.borrarUsuario(client.id);
+        io.emit('usuarios-activos', usuariosConectados.getLista());
         // console.log('Usuario desconectado: ', usuarioBorrado);
     });
 
@@ -36,12 +37,22 @@ const configurarUsuario = (client, io) => {
     client.on('configurar-usuario', (payload, callback) => {
 
         usuariosConectados.actualizarNombre(client.id, payload.nombre);
+        io.emit('usuarios-activos', usuariosConectados.getLista());
 
         callback({
             ok: true,
             msj: `Usuario ${payload.nombre} configurado.`
         });
-        // io.emit('mensaje-nuevo', payload);
+
+    });
+}
+
+// Obtener usuarios
+const obtenerUsuarios = (client, io) => {
+
+    client.on('obtener-usuarios', () => {
+
+        io.to(client.id).emit('usuarios-activos', usuariosConectados.getLista());
 
     });
 }
@@ -51,5 +62,6 @@ module.exports = {
     mensaje,
     configurarUsuario,
     usuariosConectados,
-    conectarUsuario
+    conectarUsuario,
+    obtenerUsuarios
 }

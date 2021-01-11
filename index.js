@@ -28,13 +28,15 @@ io.on('connection', (client) => {
     socket.conectarUsuario(client);
 
     // Configurar usuario
-    // console.log('user connected', client.id);
     socket.configurarUsuario(client, io);
+
+    // obtener Usuarios
+    socket.obtenerUsuarios(client, io);
 
     // Escuchar mensajes;
     socket.mensaje(client, io);
 
-    socket.disconnect(client);
+    socket.disconnect(client, io);
 
 });
 
