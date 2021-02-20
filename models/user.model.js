@@ -9,16 +9,16 @@ const rolesValidos = {
 let userSchema = new Schema({
     name: {
         type: String,
-        required: [true, 'El nombre es requerido']
+        required: true
     },
     email: {
         type: String,
         unique: true,
-        required: [true, 'El correo es requerido']
+        required: true
     },
     password: {
         type: String,
-        required: [true, 'La contraseña es requerida']
+        required: true
     },
     img: {
         type: String,
