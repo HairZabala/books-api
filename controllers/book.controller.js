@@ -5,11 +5,11 @@ const getBooks = async(req, res) => {
 
     try {
         const [booksDB, bookCount] = await Promise.all([
-            Book.find({ status: true })
+            Book.find({ status: true, userId: req.user.uid })
             .populate('user', 'name email')
             .exec(),
 
-            Book.countDocuments({ status: true })
+            Book.countDocuments({ status: true, userId: req.user.uid })
         ]);
 
         res.json({
