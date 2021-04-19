@@ -20,9 +20,6 @@ let userSchema = new Schema({
         type: String,
         required: true
     },
-    img: {
-        type: String,
-    },
     role: {
         type: String,
         default: 'USER_ROLE',
@@ -31,12 +28,7 @@ let userSchema = new Schema({
     status: {
         type: Boolean,
         default: true
-    },
-    google: {
-        type: Boolean,
-        default: false
-    },
-
+    }
 });
 
 userSchema.methods.toJSON = function() {

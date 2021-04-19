@@ -8,7 +8,7 @@ const dbConnection = async() => {
             useUnifiedTopology: true,
             useCreateIndex: true,
             useFindAndModify: false,
-            dbName: "hornos"
+            dbName: "books"
         });
 
         console.log('BD online!');

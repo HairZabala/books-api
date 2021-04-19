@@ -59,7 +59,35 @@ const login = async(req, res) => {
 
 }
 
+const renewToken = async(req, res) => {
+
+    try {
+
+        const user = await User.findById(req.user.uid);
+
+        // Generar token.
+        const token = await generateToken(user);
+
+        res.json({
+            status: true,
+            token,
+            user,
+            // menu: getMenuFrontEnd(user.role)
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: false,
+            errors: [{
+                msg: 'Error inesperado, favor revisar el Log del sistema.'
+            }]
+        });
+    }
+
+}
 
 module.exports = {
-    login
+    login,
+    renewToken
 }

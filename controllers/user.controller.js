@@ -1,71 +1,16 @@
-const { usuariosConectados } = require("../sockets/socket");
 const User = require('../models/user.model');
 const validator = require('email-validator');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 const { generateToken } = require('../helpers/jwt.helper');
 
-// Servicio para obtener todos los ID's de los usuarios.
-const getUsersIds = async(req, res) => {
-
-    try {
-
-        io.clients((err, clientes) => {
-            if (err) {
-                return res.status(400).json({
-                    status: false,
-                    err
-                })
-            }
-
-            res.json({
-                status: true,
-                clientes,
-            })
-        });
-
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: false,
-            error: {
-                message: 'Error inesperado, favor revisar el Log del sistema.'
-            }
-        })
-    }
-
-};
-
-// Servicio para obtener los detalles de todos los usuarios.
-const getUsersDetails = (req, res) => {
-
-    try {
-
-        res.json({
-            status: true,
-            clientes: usuariosConectados.getLista()
-        })
-
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: false,
-            error: {
-                message: 'Error inesperado, favor revisar el Log del sistema.'
-            }
-        })
-    }
-
-};
 
 const getUsers = async(req, res) => {
 
     try {
 
         const [usersDB, userCount] = await Promise.all([
-            User.find({ status: true }, 'name email img role google status')
+            User.find({ status: true }, 'name email role status')
             .exec(),
 
             User.countDocuments({ status: true })
@@ -82,9 +27,9 @@ const getUsers = async(req, res) => {
         console.log(error);
         res.status(500).json({
             status: false,
-            error: {
-                msg: 'Error inesperado, favor revisar el Log del sistema.'
-            }
+            errors: [{
+                msg: 'Something is wrong, please check the system log.'
+            }]
         })
     }
 
@@ -98,9 +43,9 @@ const createUser = async(req, res) => {
         if (!validator.validate(body.email)) {
             return res.status(400).json({
                 status: false,
-                error: {
-                    msg: 'El email es inválido. Favor verifique.'
-                }
+                errors: [{
+                    msg: 'Email is invalid, please verify it.'
+                }]
             });
         }
 
@@ -110,9 +55,9 @@ const createUser = async(req, res) => {
         if (emailUnique) {
             return res.status(400).json({
                 status: false,
-                error: {
-                    msg: `El email ${String(body.email).toLowerCase()} ya se encuentra registrado. Favor verifique.`
-                }
+                errors: [{
+                    msg: `The email ${String(body.email).toLowerCase()} is already registered. please verify it.`
+                }]
             });
         }
 
@@ -139,8 +84,9 @@ const createUser = async(req, res) => {
         console.log(error);
         res.status(500).json({
             status: false,
-            error: error.errors,
-            msg: 'Error inesperado, favor revisar el Log del sistema.'
+            errors: [{
+                msg: 'Something is wrong, please check the system log.'
+            }]
         })
     }
 };
@@ -149,14 +95,26 @@ const updateUser = async(req, res) => {
 
     try {
         const id = req.params.id;
-        const body = _.pick(req.body, ['name', 'email', 'img', 'role', 'status']);
+        const body = _.pick(req.body, ['name', 'email', 'role', 'status']);
 
         if (body.email && !validator.validate(body.email)) {
             return res.status(400).json({
                 status: false,
                 error: {
-                    msg: 'El email es inválido. Favor verifique.'
+                    msg: 'Email is invalid, please verify it.'
                 }
+            });
+        }
+
+        // valido que el email sea unico.
+        const emailUnique = await User.findOne({ email: String(body.email).toLowerCase() });
+
+        if (emailUnique) {
+            return res.status(400).json({
+                status: false,
+                errors: [{
+                    msg: `The email ${String(body.email).toLowerCase()} is already registered. please verify it.`
+                }]
             });
         }
 
@@ -165,18 +123,18 @@ const updateUser = async(req, res) => {
         if (!userDB) {
             return res.status(404).json({
                 status: false,
-                error: {
-                    msg: 'El usuario no existe en la BD'
-                }
+                errors: [{
+                    msg: 'User does not exist in DB.'
+                }]
             });
         }
 
         if (!userDB.status) {
             return res.status(404).json({
                 status: false,
-                error: {
-                    msg: 'No es posible modificar un usuario con estado inactivo. Verifique.'
-                }
+                errors: [{
+                    msg: 'It is not posible to modify a inactive user, please verify it.'
+                }]
             });
         }
 
@@ -191,9 +149,9 @@ const updateUser = async(req, res) => {
         console.log(error);
         res.status(500).json({
             status: false,
-            error: {
-                msg: 'Error inesperado, favor revisar el Log del sistema.'
-            }
+            errors: [{
+                msg: 'Something is wrong, please check the system log.'
+            }]
         })
     }
 
@@ -211,9 +169,9 @@ const deleteUser = async(req, res) => {
         if (!userDeleted) {
             return res.status(404).json({
                 status: false,
-                error: {
-                    msg: 'El usuario no existe en la BD'
-                }
+                errors: [{
+                    msg: 'User does not exist in DB.'
+                }]
             });
         }
 
@@ -225,17 +183,15 @@ const deleteUser = async(req, res) => {
         console.log(error);
         res.status(500).json({
             status: false,
-            error: {
-                msg: 'Error inesperado, favor revisar el Log del sistema.'
-            }
+            errors: [{
+                msg: 'Something is wrong, please check the system log.'
+            }]
         })
     }
 
 }
 
 module.exports = {
-    getUsersIds,
-    getUsersDetails,
     getUsers,
     createUser,
     updateUser,
