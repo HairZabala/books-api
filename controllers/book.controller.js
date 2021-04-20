@@ -75,7 +75,7 @@ const getBooksByYear = async(req, res) => {
             .populate('user', 'name email')
             .exec(),
 
-            Book.countDocuments({ status: true, yearFiltered: {$gt:(yearFiltered-1)} })
+            Book.countDocuments({ status: true, year: {$gt:(yearFiltered-1)} })
         ]);
 
         res.json({
