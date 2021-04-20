@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start:dev": "nodemon index.js"
+        "start:dev": "nodemon index.js",
+        "start": "nodemon index.js"
     },
     "author": "Hair Zabala",
     "license": "ISC",
